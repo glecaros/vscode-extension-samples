@@ -9,9 +9,12 @@ import {
 	Diagnostic,
 	InitializeParams,
 	ProposedFeatures,
+	SemanticTokensBuilder,
 	TextDocuments,
-	TextDocumentSyncKind
-} from 'vscode-languageserver';
+	TextDocumentSyncKind,
+	SemanticTokensLegend,
+	SemanticTokens,
+} from 'vscode-languageserver/node';
 import { getLanguageModes, LanguageModes } from './languageModes';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 
@@ -25,6 +28,31 @@ const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
 
 let languageModes: LanguageModes;
 
+interface PromptTurns {
+	role: 'user' | 'system';
+	content: string;
+}
+
+interface DocumentParts {
+	prelude: any;
+	prompt: PromptTurns[];
+
+}
+
+const legend: SemanticTokensLegend = {
+	tokenTypes: ["variable", "interpolation-delimiter"],
+	tokenModifiers: []
+};
+
+
+function parseDocumentForSemanticTokens(document: TextDocument): SemanticTokens {
+	// Implement your logic to parse the document and identify the markdown parts and interpolation markers
+	// For each identified token, add its line, character start position, length, token type, and token modifier to the tokens array
+	const builder = new SemanticTokensBuilder();
+
+	return builder.build();
+}
+
 connection.onInitialize((_params: InitializeParams) => {
 	languageModes = getLanguageModes();
 
@@ -35,8 +63,29 @@ connection.onInitialize((_params: InitializeParams) => {
 		languageModes.dispose();
 	});
 
+	connection.onRequest("textDocument/semanticTokens/full", async (params) => {
+		// Get the text document
+		const document = documents.get(params.textDocument.uri);
+		if (!document) {
+			return null;
+		}
+
+		// Parse the document and identify the markdown parts and interpolation markers
+		const tokens = parseDocumentForSemanticTokens(document);
+
+		// Return the semantic tokens
+		return { data: tokens };
+	});
+
+
+
 	return {
 		capabilities: {
+			semanticTokensProvider: {
+				documentSelector: { scheme: 'file', language: 'prompty'},
+				legend,
+				full: true
+			},
 			textDocumentSync: TextDocumentSyncKind.Full,
 			// Tell the client that the server supports code completion
 			completionProvider: {
@@ -45,6 +94,12 @@ connection.onInitialize((_params: InitializeParams) => {
 		}
 	};
 });
+// connection.onRequest("textDocument/semanticTokens/full", (params) => {
+// 	// Implement your logic to provide semantic tokens for the given document here.
+// 	// You should return the semantic tokens as a response.
+// 	const semanticTokens = computeSemanticTokens(params.textDocument.uri);
+// 	return semanticTokens;
+//   });
 
 connection.onDidChangeConfiguration(_change => {
 	// Revalidate all open text documents

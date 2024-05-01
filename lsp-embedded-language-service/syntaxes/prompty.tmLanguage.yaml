@@ -1,0 +1,19 @@
+scopeName: source.prompty
+patterns:
+  - include: '#prelude'
+  - include: '#prompt'
+repository:
+  prelude:
+    begin: ^---$
+    end: ^---$
+    contentName: frontmatter
+    patterns:
+      - include: source.yaml
+  prompt:
+    begin: ^(system|user):$
+    end: ^(?=(system|user):$)
+    beginCaptures:
+      '0': {name: entity.name.type}
+    contentName: content
+    patterns:
+      - include: text.html.markdown

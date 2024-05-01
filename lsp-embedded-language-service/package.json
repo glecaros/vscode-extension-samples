@@ -14,22 +14,24 @@
 	"engines": {
 		"vscode": "^1.74.0"
 	},
-	"activationEvents": [],
+	"activationEvents": [
+		"onLanguage:prompty"
+	],
 	"main": "./client/out/extension",
 	"contributes": {
 		"languages": [
 			{
-				"id": "html1",
+				"id": "prompty",
 				"extensions": [
-					".html1"
+					".prompty"
 				]
 			}
 		],
 		"grammars": [
 			{
-				"language": "html1",
-				"scopeName": "text.html1.basic",
-				"path": "./syntaxes/html1.tmLanguage.json"
+				"language": "prompty",
+				"scopeName": "source.prompty",
+				"path": "./syntaxes/prompty.tmLanguage.json"
 			}
 		]
 	},
@@ -38,7 +40,8 @@
 		"compile": "tsc -b",
 		"watch": "tsc -b -w",
 		"lint": "eslint ./client/src ./server/src --ext .ts,.tsx",
-		"postinstall": "cd client && npm install && cd ../server && npm install && cd .."
+		"generate-grammar": "js-yaml ./syntaxes/prompty.tmLanguage.yaml > ./syntaxes/prompty.tmLanguage.json",
+		"postinstall": "npm run generate-grammar && cd client && npm install && cd ../server && npm install && cd .."
 	},
 	"devDependencies": {
 		"@types/mocha": "^5.2.7",
@@ -46,6 +49,7 @@
 		"@typescript-eslint/eslint-plugin": "^6.7.0",
 		"@typescript-eslint/parser": "^6.7.0",
 		"eslint": "^7.21.0",
+		"js-yaml": "^4.1.0",
 		"typescript": "^5.4.2"
 	}
 }

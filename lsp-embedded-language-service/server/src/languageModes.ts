@@ -43,6 +43,7 @@ export interface LanguageModeRange extends Range {
 }
 
 export function getLanguageModes(): LanguageModes {
+	// const yamlLanguageService
 	const htmlLanguageService = getHTMLLanguageService();
 	const cssLanguageService = getCSSLanguageService();
 
